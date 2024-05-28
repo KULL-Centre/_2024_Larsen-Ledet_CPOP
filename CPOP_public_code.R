@@ -8,10 +8,12 @@ library(ggpubr)
 library(ggpmisc)
 
 #Change the path to your directory
-path <- "your_path_goes_here"
+path <- "/Users/psd212/Library/CloudStorage/OneDrive-Personal/SLL/Work/Research Assistant and PhD/CPOP DHFR/Public_code_shared/"
 
 #Read in dataframes
 cpop_data <- read.csv(file.path(path, "cpop_data.csv"))
+cpop_data_ROC_ins <- read.csv(file.path(path, "cpop_data_ROC_ins.csv"))
+cpop_data_ROC_del <- read.csv(file.path(path, "cpop_data_ROC_del.csv")) 
 dssp <- read.csv(file.path(path, "1u72_dssp.csv"), sep = ",")
 ins_dplddt_ddg <- read.csv(file.path(path, "ins_dplddt_ddg.csv"))
 del_dplddt_ddg <- read.csv(file.path(path, "del_dplddt_ddg.csv"))
@@ -88,7 +90,7 @@ colnames(cpop_ins_compl_heatmap) <- cpop_ins_compl[1,]
 draw(Heatmap(cpop_ins_compl_heatmap,
              cluster_rows = FALSE, 
              cluster_columns = FALSE,
-             colorRamp2(c(-0.2293587, 1 , 2.2293587), c("darkred", "white", "darkblue")),
+             colorRamp2(c(-0.228, 1 , 2.228), c("darkred", "white", "darkblue")),
              name = ("CPOP score"),
              heatmap_legend_param = list(direction = "horizontal",
                                          title_position = "topcenter", 
@@ -112,6 +114,7 @@ draw(Heatmap(cpop_ins_compl_heatmap,
                                           labels_gp = gpar(fontsize = 12),
                                           row_gap = unit(2, "mm"))))
 
+
 #CPOP heatmaps for deletions
 cpop_del <- cpop_data %>%
   filter(mut_type == "del") %>%
@@ -122,7 +125,7 @@ colnames(cpop_del_compl_heatmap) <- cpop_del_compl[1,]
 draw(Heatmap(cpop_del_compl_heatmap,
              cluster_rows = FALSE, 
              cluster_columns = FALSE,
-             colorRamp2(c(-0.2821199, 1 , 2.2821199), c("darkred", "white", "darkblue")),
+             colorRamp2(c(-0.288, 1 , 2.288), c("darkred", "white", "darkblue")),
              name = ("CPOP score"),
              heatmap_legend_param = list(direction = "horizontal",
                                          title_position = "topcenter", 
@@ -145,6 +148,7 @@ draw(Heatmap(cpop_del_compl_heatmap,
                                           border = c("black", "black"),
                                           labels_gp = gpar(fontsize = 12),
                                           row_gap = unit(2, "mm"))))
+
 
 #Fig. 4B
 
@@ -218,7 +222,7 @@ colnames(cpop_data_delta_ins_heat) <- cpop_data_delta_ins_t[1,]
 draw(Heatmap(cpop_data_delta_ins_heat,
              cluster_rows = FALSE, 
              cluster_columns = FALSE,
-             colorRamp2(c(0, 1.021242), c("white", "magenta")),
+             colorRamp2(c(0, 1.113), c("white", "magenta")),
              heatmap_legend_param = list(direction = "horizontal",
                                          title = expression(Delta*"CPOP score"),
                                          title_position = "topcenter", 
@@ -226,7 +230,7 @@ draw(Heatmap(cpop_data_delta_ins_heat,
                                          labels_gp = gpar(fontsize = 12),
                                          title_gp = gpar(fontsize = 14, fontface = "bold"),
                                          border = "black", 
-                                         at = c(0, 1.021242),
+                                         at = c(0, 1.113),
                                          labels = c("Low\ndifference", "High\ndifference")),
              row_names_gp = gpar(fontsize = 14),
              column_names_gp = gpar(fontsize = 5),
@@ -242,6 +246,7 @@ draw(Heatmap(cpop_data_delta_ins_heat,
                                           labels_gp = gpar(fontsize = 12),
                                           row_gap = unit(2, "mm"))))
 
+
 #CPOP delta heatmaps for deletions
 cpop_data_delta_del <- cpop_data %>%
   filter(mut_type == "del") %>%
@@ -255,7 +260,7 @@ colnames(cpop_data_delta_del_heat) <- cpop_data_delta_del_t[1,]
 draw(Heatmap(cpop_data_delta_del_heat,
              cluster_rows = FALSE, 
              cluster_columns = FALSE,
-             colorRamp2(c(0, 1.055046), c("white", "magenta")),
+             colorRamp2(c(0, 1.054), c("white", "magenta")),
              heatmap_legend_param = list(direction = "horizontal",
                                          title = expression(Delta*"CPOP score"),
                                          title_position = "topcenter", 
@@ -263,7 +268,7 @@ draw(Heatmap(cpop_data_delta_del_heat,
                                          labels_gp = gpar(fontsize = 12),
                                          title_gp = gpar(fontsize = 14, fontface = "bold"),
                                          border = "black", 
-                                         at = c(0, 1.055046),
+                                         at = c(0, 1.054),
                                          labels = c("Low\ndifference", "High\ndifference")),
              row_names_gp = gpar(fontsize = 14),
              column_names_gp = gpar(fontsize = 5),
@@ -296,7 +301,7 @@ ggplot() +
   geom_vline(xintercept = 0, color = "black", linewidth = 0.5, linetype = "longdash") +
   geom_hline(yintercept = 0, color = "black", linewidth = 0.5, linetype = "longdash") +
   facet_grid(~ experiment, labeller = as_labeller(c(score_30 = "30 °C", score_30_MTX = "30 °C + MTX", score_37 = "37 °C", score_37_MTX = "37 °C + MTX"))) +
-  scale_colour_gradient2(limits = c(-0.2293587, 2.2293587), 
+  scale_colour_gradient2(limits = c(-0.228, 2.228), 
                          breaks = c(0, 1, 2), 
                          midpoint = 1, 
                          low = 'darkred', 
@@ -321,7 +326,7 @@ ggplot() +
   geom_vline(xintercept = 0, color = "black", linewidth = 0.5, linetype = "longdash") +
   geom_hline(yintercept = 0, color = "black", linewidth = 0.5, linetype = "longdash") +
   facet_grid(~ experiment, labeller = as_labeller(c(score_30 = "30 °C", score_30_MTX = "30 °C + MTX", score_37 = "37 °C", score_37_MTX = "37 °C + MTX"))) +
-  scale_colour_gradient2(limits = c(-0.2293587, 2.2293587), 
+  scale_colour_gradient2(limits = c(-0.288, 2.288), 
                          breaks = c(0, 1, 2), 
                          midpoint = 1, 
                          low = 'darkred', 
@@ -335,12 +340,12 @@ ggplot() +
 #Fig. 6B
 
 #ROC curve for insertions
-ins_thres <- cpop_data %>%
+ins_thres <- cpop_data_ROC_ins %>%
   filter(mut_type == "ins") %>%
   merge(ins_dplddt_ddg, by = "pos") %>%
   mutate(cutoff_30 = ifelse(score_30 > 0.5, 1, 0),
          cutoff_30_MTX = ifelse(score_30_MTX > 0.5, 1, 0),
-         cutoff_37 = ifelse(score_37> 0.5, 1, 0),
+         cutoff_37 = ifelse(score_37 > 0.5, 1, 0),
          cutoff_37_MTX = ifelse(score_37_MTX > 0.5, 1, 0))
 ggroc(list(dplddt_30 = roc(ins_thres$cutoff_30, ins_thres$dplddt),
            ddG_30 = roc(ins_thres$cutoff_30, ins_thres$ddg),
@@ -375,12 +380,12 @@ ggroc(list(dplddt_30 = roc(ins_thres$cutoff_30, ins_thres$dplddt),
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(size = 14), legend.text.align = 0, aspect.ratio = 1)
 
 #ROC curve for deletions
-del_thres <- cpop_data %>%
+del_thres <- cpop_data_ROC_del %>%
   filter(mut_type == "del") %>%
   merge(del_dplddt_ddg, by = "pos") %>%
   mutate(cutoff_30 = ifelse(score_30 > 0.5, 1, 0),
          cutoff_30_MTX = ifelse(score_30_MTX > 0.5, 1, 0),
-         cutoff_37 = ifelse(score_37> 0.5, 1, 0),
+         cutoff_37 = ifelse(score_37 > 0.5, 1, 0),
          cutoff_37_MTX = ifelse(score_37_MTX > 0.5, 1, 0))
 ggroc(list(dplddt_30 = roc(del_thres$cutoff_30, del_thres$dplddt),
            ddG_30 = roc(del_thres$cutoff_30, del_thres$ddg),
