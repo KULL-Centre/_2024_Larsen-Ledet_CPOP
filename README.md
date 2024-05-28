@@ -10,7 +10,7 @@ This respository contains all data and code to repeat the processing and analysi
 * cpop_data_ROC_del/ins.csv - CPOP scores for ROC curves, where duplicated indel variants on protein level have been removed.
 * tile1-5.csv - Counts for DHFR indel, synonymous and nonsense variants for each replicate and condition.
 * CPOP_primers_annealing.temp..xlsx - Primers and annealing temperatures for the first PCR in amplicon preparation.
-* CPOP_data_combined.xlsx - All data files combined in a single Excel sheet
+* CPOP_data_combined.xlsx - All data files combined in a single Excel file.
 
 ## Processing of raw sequencing data
 The function.py file is used to call DHFR variants and calculate CPOP scores. The script takes raw FASTQ files as input, which are available at the NCBI Gene Expression Omnibus (GEO) repository (accession number: XXXX).
