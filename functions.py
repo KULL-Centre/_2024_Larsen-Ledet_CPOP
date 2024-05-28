@@ -15,19 +15,15 @@ from Bio import pairwise2
 from Bio.pairwise2 import format_alignment
 import textwrap
 from Bio.Seq import Seq
-from Bio.Align import substitution_matrices
 import re
 import statistics
 import math
 from scipy import stats
 from itertools import combinations
 
-# Load the BLOSUM62 substitution matrix for sequence alignment
-blosum62 = substitution_matrices.load('BLOSUM62')
-
 """
 Function that takes in the .txt file with sequence counts and filters out
-sequences with less counts then 'threshold' variable value, as well as sequences
+sequences with less counts than 'threshold' variable value, as well as sequences
 with unexpected lengths (for example, forward or reverse adapters untrimmed)
 """
 def read_DNA_counts(path_to_txt, threshold, min_len, max_len, rep, print_yn=False):
@@ -62,10 +58,10 @@ def read_DNA_counts(path_to_txt, threshold, min_len, max_len, rep, print_yn=Fals
 """
 Function that takes in sequences, checks them for being the correct
 length, in-frame, and without additional mismatches, and classifies 
-them as syninimous variant, stop-codon variant, insertion or deletion.
+them as synonymous variant, stop-codon variant, insertion or deletion.
 For indels, mismatches on the DNA level are allowed, since
 this code is focused on protein-level changes, and they are most
-probably the sequencing errors. For stop and synonimous codons, mismatches
+probably the sequencing errors. For stop and synonymous codons, mismatches
 are not allowed. For the rare cases when the direction of the reads is not 
 forward, user can specify 'direction' variable (from default 'fwd' to 'rev')
 in the 'sequence_data_dict'.
@@ -87,21 +83,21 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
     going one after another will be the same on the protein level, 
     but not on the DNA level. In this case we want to check the sequence
     on the DNA level to assign the correct position to the variant.
-    Position is set to 0 for the wild type and some of the sequences we want to   
-    filter out: synonimous (to wild type) variants with more then one codon 
-    mutated, stop-codon variants with additional DNA mismatches, out-of-frame 
-    sequences, protein-level mismatches.
+    Position variable is set to 0 for the wild type and some of the sequences we 
+    want to filter out: synonymous (to wild type) variants with more than one 
+    codon mutated, stop-codon variants with additional DNA mismatches, 
+    out-of-frame sequences, protein-level mismatches.
     """
     for n_r, res in enumerate(wt_aa):
         # Find the codon corresponding to the residue
         codon = wt_dna[((n_r)*3):(((n_r)*3)+3)] 
-        if res == old_res: # Is is two sequential residues?
+        if res == old_res: # Are these two sequential residues?
             if codon != old_codon: # Are they coded by non-identical codons?
                 sequential_positions.append(n_r)
         old_res = res
         old_codon = codon
         
-    syn_count = 0 # Counter to sum all of the synonimous variants for reporting
+    syn_count = 0 # Counter to sum all of the synonymous variants for reporting
     mut_type_list = list() # 'mut_type' column to add to the df
     pos_list = list() # 'pos' column to add to the df
     pos = 0 # Variable for mutation position tracking
@@ -128,14 +124,14 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
             pos_list.append(pos)
             continue
         
-        # This statement allows allows to fish out non-indels
+        # This statement allows to fish out non-indels
         if len(var_aa)==len(wt_aa):
             if var_dna == wt_dna: # We found the wild type
                 mut_type = 'wt'
                 pos = 0
                 # Get the WT count for detailed reporting
                 wt_count = row[('count_'+rep)] 
-            elif (var_dna != wt_dna)&(var_aa==wt_aa): # Synonimous
+            elif (var_dna != wt_dna)&(var_aa==wt_aa): # Synonymous
                 bp_pos = 0 # Position in the DNA seq
                 mismatch = 0 # Variable for counting mismatching codons
                 res_pos = 0 # Residue position
@@ -155,7 +151,7 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
                 if mismatch == 1: # Only one codon is replaced
                     mut_type = 'syn'
                     pos = res_pos + 1
-                else: # Multiple synonimous substitutions
+                else: # Multiple synonymous substitutions
                     mut_type = 'multi_syn'
                     pos = 0
                 # Get the syn count for detailed reporting
@@ -173,7 +169,7 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
                     pos = 0
                     mut_type = 'stop_mismatch' 
             # If none of the above is true, it's a protein-level mismatch variant:
-            # same length as WT, but not synonimous or stop
+            # same length as WT, but not synonymous or stop
             else:  
                 mut_type = 'mismatch'
                 pos = 0
@@ -212,7 +208,7 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
                 mut_type = 'del'
                 if pos in sequential_positions:
                     # If this is one of the positions where the same residues go 
-                    # one after anoter, but are encoded by different codons, 
+                    # one after another, but are encoded by different codons, 
                     # we want to make sure that the position we assign is 
                     # according to the DNA aligment
                     align_dna = pairwise2.align.globalms(wt_dna, 
@@ -236,7 +232,7 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
         
     if print_yn == True:
         print('WT count: ', wt_count)
-        print('Synonimus count: ', syn_count)
+        print('Synonymous count: ', syn_count)
     DNA_df['mut_type'] = mut_type_list
     DNA_df['pos'] = pos_list
     DNA_df.sort_values(by=['pos'], ignore_index=True, inplace=True)
@@ -248,7 +244,7 @@ def var_call(DNA_df, wt_dna, rep, direction='fwd', print_yn = False):
 Main analysis function that handles data in the following order: reads data per 
 replicate, then merges together replicates from different conditions and 
 calculates for every replicate a ratio of variant counts to the wild type or 
-synonimous counts depending on the selected normalisation type.
+synonymous counts depending on the selected normalisation type.
 This function outputs data in various stages of analysis to simplify
 troubleshooting, but tile_shared_averaged is what is used to produce heatmaps 
 and can be considered the main output.
@@ -320,12 +316,11 @@ def analysis(path_to_folder, sequence_data_dict, normalisation_scaling_type,
                                    'aa': aa_seq_list,
                                    'mut_type': mutation_list})
 
-        condition_all_df_list = []
+        condition_all_df_list = list()
         for condition in sequence_data_dict['reps_cond_tile'][tile].keys():
-            replicates_all_df_list = []
-            count_rep_list = list()
+            # List to collect replicate dataframes to merge them later
+            replicates_all_df_list = list() 
             for rep in sequence_data_dict['reps_cond_tile'][tile][condition]:
-                count_rep_list.append('count_' + rep)
                 if print_yn == True: # To separate between tile info blocks
                     print('\n'+tile.upper()+' '+condition+' '+rep)
                 
@@ -346,181 +341,244 @@ def analysis(path_to_folder, sequence_data_dict, normalisation_scaling_type,
                     df.mut_type.isin(sequence_data_dict['values']) == False
                                    ].reset_index(drop=True)
                 # Replace the DNA sequence with protein sequence to sum together 
-                # varriants that are synonimous on the protein level, but 
+                # varriants that are synonymous on the protein level, but 
                 # different on the DNA level (only for indels).
                 vars_clean['sequence'] = vars_clean['sequence'].apply(
                     lambda x: str(Seq(x).translate()))
                 clean_sum = vars_clean.groupby(['sequence', 'pos',
-                                        'mut_type'], dropna=False, as_index=False,
-                                        group_keys = False).sum().sort_values(
-                                        by=['pos'], ignore_index=True)
+                                    'mut_type'], dropna=False, as_index=False,
+                                    group_keys = False).sum().sort_values(
+                                    by=['pos'], ignore_index=True)
                 
-                syn_sum = float(clean_sum.loc[clean_sum['mut_type'] == 'syn'][f'count_{rep}'].sum())
-                
-                for condition in [x for x in sequence_data_dict['reps_cond_tile'][tile].keys() if x != 'no-sele']:
-                    syn_sele = float(tile_all.loc[tile_all['mut_type'] == 'syn'][('mean_count_'+condition)].sum())
-                    syn_ratio = syn_sele/syn_control
-                    var_ratio = tile_all[('mean_count_'+condition)]/tile_all[('mean_count_no-sele')]
-                    tile_all[('score_'+condition)] = np.log(var_ratio/syn_ratio).round(3)
-                
+                # Calculate the per replicate ratio of count_var/count_syn
+                # using the sum of all synonymous variants in the replicate. 
+                # Depending on the chosen normalisation type, ratios are going 
+                # to be calculated to wild type (wt), sum of all synonymous 
+                # variants in the tile (syn_sum), or for synonymous score of 
+                # each position (syn_pos)
+                if normalisation_scaling_type == 'syn_sum':
+                    clean_sum[f'ratio_{rep}'] = clean_sum[f'count_{rep}'
+                            ].values/float(clean_sum.loc[clean_sum['mut_type'] 
+                                == 'syn'][f'count_{rep}'].sum())
+                elif normalisation_scaling_type == 'wt':
+                    clean_sum[f'ratio_{rep}'] = clean_sum[f'count_{rep}'
+                            ].values/float(clean_sum.loc[clean_sum['mut_type'] 
+                                == 'wt'][f'count_{rep}'])
+                #elif normalisation_scaling_type == 'syn_pos':
+                # Do we even need it?
+                else:
+                    print('Wrong normalisation type!')
+                    print('It should be one of the 3: syn_sum, syn_pos, or wt')
+                    return
+                # Add replicate dataframe to the list to merge later
                 replicates_all_df_list.append(clean_sum)
                 
-            rep_counts[tile][condition] = replicates_all_df_list
+            # Now we enter the condition level -- we've collected all of the
+            # replicate dataframes for condition in one list.
             
-            all_rep_df = functools.reduce(lambda x, y: x.merge(y, on=['mut_type', 'pos', 'sequence'], how='left'), 
-                                      replicates_all_df_list)
-
+            # # Save the list with counts and ratios to the 'raw' counts dictionary
+            # rep_counts[tile][condition] = replicates_all_df_list
+            # Merge data for all replicates based on position, type of mutation,
+            # and *sequence*. This means that variants that are only present 
+            # in some but not all replicates will have NaN values for some
+            # of the columns. We use this to drop all variants like that.
+            all_rep_df = functools.reduce(lambda x, y: x.merge(y, on=['mut_type', 
+                           'pos', 'sequence'], how='left'), replicates_all_df_list)
             clean_df = all_rep_df.dropna().reset_index(drop=True)
-            
+            # Save the list with counts and ratios to the 'raw' counts dictionary
+            ratio_cols = [c for c in clean_df.columns if c.startswith('ratio')]
+            rep_counts[tile][condition] = clean_df.drop(columns=ratio_cols).copy()
+            # Calculates and prints Spearman's correlation between the replicates.
             if print_yn == True:
                 print('\n')
+                # Form a list of count columns
                 reps = [x for x in clean_df.columns if x.startswith('count')]
+                # Get all possible combinations of the values in the list
+                # (order is not important)
                 combos = list(combinations(reps, 2))
                 for i in range(len(combos)):
+                    # Get the first (x) and the second (y) value form the 
+                    # combination
                     x = combos[i][0].split('_')[1]
                     y = combos[i][1].split('_')[1]
-                    print(f'Pearson {x} to {y}: ', stats.spearmanr(clean_df[combos[i][0]], clean_df[combos[i][1]])[0])
+                    print(f'Pearson {x} to {y}: ', 
+                          stats.spearmanr(clean_df[combos[i][0]],
+                                          clean_df[combos[i][1]])[0])
 
             #STATISTICAL ANALYSIS STARTS
-            clean_df['mean_count_'+condition] = clean_df.loc[:, count_rep_list].mean(axis=1).round(3)
-            clean_df['std_'+condition] = clean_df.loc[:, count_rep_list].std(axis=1).round(3)
-            condition_all_df_list.append(clean_df[['sequence', 'pos', 'mut_type', 'mean_count_'+condition, 'std_'+condition]])
-        
-        tile_df = functools.reduce(lambda x, y: x.merge(y, on=['mut_type', 'pos', 'sequence'], how='left'), 
-                                   condition_all_df_list)
-
+            # Form a list of ratio columns to calculate mean ratio and a standard
+            # error between reps
+            ratio_list = [r for r in clean_df.columns if r.startswith('ratio')]
+            clean_df['mean_ratio_'+condition] = clean_df.loc[:,ratio_list].mean(
+                axis=1).round(6)
+            clean_df['std_ratio_'+condition] = clean_df.loc[:, ratio_list].std(
+                axis=1).round(6)
+            # Drop the count columns and per replicate ratio columns, then save 
+            # the resulting condition dataframe in a list for merging with other
+            # conditions
+            condition_all_df_list.append(clean_df[['sequence', 'pos', 'mut_type',
+                'mean_ratio_'+condition, 'std_ratio_'+condition]])
+        # Merge dataframes for all the conditions in one full tile dataframe
+        tile_df = functools.reduce(lambda x, y: x.merge(y, on=['mut_type', 'pos',
+                    'sequence'], how='left'), condition_all_df_list)
+        # Remember the tile modifier to keep residue numeration consistent?
         tile_df['pos'] = tile_df['pos']+tile_modifier
+        # Save the row with the wild type data in a separate dataframe
         wt_row = tile_df[tile_df.mut_type == 'wt']
-        wt_df = pd.concat([wt_df, wt_row.join(pd.DataFrame({'tile': [tile]}), how='left')])
+        wt_df = pd.concat([wt_df, wt_row.join(pd.DataFrame({'tile': [tile]}),
+                            how='left')])
+        # Drop the wild type row
         tile_all = tile_df.drop(tile_df[tile_df.pos == 'wt'].index)
-        tile_all = scaffold_df.merge(tile_all, on=['mut_type', 'pos'], how='left')
+        # Finally, merge the tile dataframe with ratios per condition to the
+        # scaffold dataframe to get structured ordered data
+        tile_all = scaffold_df.merge(tile_all, on=['mut_type', 'pos'], 
+                                     how='left')
         
-        if normalisation_scaling_type == 'wt':
-            #NORMALISATION TO WILD TYPE
-            wt_control = float(wt_df.loc[wt_df['tile'] == tile]['mean_count_no-sele'])
-            for condition in [x for x in sequence_data_dict['reps_cond_tile'][tile].keys() if x != 'no-sele']:
-                wt_sele = float(wt_df.loc[wt_df['tile'] == tile][('mean_count_'+condition)])
-                wt_ratio = wt_sele/wt_control
-                var_ratio = (tile_all[('mean_count_'+condition)])/(tile_all[('mean_count_no-sele')])
-                tile_all[('score_'+condition)] = np.log(var_ratio/wt_ratio).round(3)
-                
-            #Scaling from 0 to 1, with 0 at mean stop-codon score for condition, and 1 at mean synonymous
-            score_col = [col for col in tile_all if col.startswith('score_')]
-            min_params = tile_all.loc[tile_all['mut_type'] == 'stop'][score_col].mean()
-            max_params = 0
-            tile_all[score_col] = ((tile_all[score_col]-min_params)/(max_params-min_params)).round(3)
-            
-        elif normalisation_scaling_type == 'syn_mean':
-            #NORMALISATION TO SYNONIMOUS VARIANTS
-            syn_control = float(tile_all.loc[tile_all['mut_type'] == 'syn']['mean_count_no-sele'].sum())
-            for condition in [x for x in sequence_data_dict['reps_cond_tile'][tile].keys() if x != 'no-sele']:
-                syn_sele = float(tile_all.loc[tile_all['mut_type'] == 'syn'][('mean_count_'+condition)].sum())
-                syn_ratio = syn_sele/syn_control
-                var_ratio = tile_all[('mean_count_'+condition)]/tile_all[('mean_count_no-sele')]
-                tile_all[('score_'+condition)] = np.log(var_ratio/syn_ratio).round(3)
-                
-            #Scaling from 0 to 1, with 0 at mean stop-codon score for condition, and 1 at mean synonymous
-            score_col = [col for col in tile_all if col.startswith('score_')]
-            min_params = tile_all.loc[tile_all['mut_type'] == 'stop'][score_col].mean()
-            max_params = 0
-            tile_all[score_col] = ((tile_all[score_col]-min_params)/(max_params-min_params)).round(3)
-                
-        elif normalisation_scaling_type == 'syn_pos':
-            #NORMALISATION TO SYNONIMOUS VARIANTS PER POSITION
-            syn_df = tile_all.loc[tile_all['mut_type'] == 'syn'].copy()
-            syn_control = syn_df['mean_count_no-sele'].values
-            np.nan_to_num(syn_control, copy=False, nan=float(syn_df['mean_count_no-sele'].mean()))
-            for condition in [x for x in sorted(sequence_data_dict['reps_cond_tile'][tile].keys()) if x != 'no-sele']:
-                syn_sele = syn_df[('mean_count_'+condition)].values
-                np.nan_to_num(syn_sele, copy=False, nan=float(syn_df[('mean_count_'+condition)].mean()))
-                size = len(tile_all)
-                syn_ratio = np.zeros(shape=(size, ))
-                for i in range(size):
-                    full_df_index = int(i/4)
-                    syn_ratio[i] = syn_sele[full_df_index]/syn_control[full_df_index]
-
-                var_ratio = (tile_all[('mean_count_'+condition)].values)/(tile_all[('mean_count_no-sele')].values)
-                tile_all[('score_'+condition)] = np.log(var_ratio/syn_ratio).round(3)
-                
-            #Scaling from 0 to 1, with 0 at position-specific stop-codon score, and 1 at synonymous
-            score_col = [col for col in tile_all if col.startswith('score_')]
-            stops = tile_all.loc[tile_all['mut_type'] == 'stop'][score_col].values
-            min_params = np.zeros(shape=(tile_all[score_col].shape))
-            for i in range(size):
-                stop_df_index = int(i/4)
-                for cl in range(len(score_col)):
-                    np.nan_to_num(stops[:, cl], copy=False, nan=float(np.nanmean(stops[:, cl])))
-                min_params[i] = stops[stop_df_index]
-            max_params = 0
-            tile_all[score_col] = ((tile_all[score_col]-min_params)/(max_params-min_params)).round(3)
-            
-        else:
-            print('Wrong scoring option')
-
+        # Now, we need to calculate log ratio scores. The formula is 
+        # ln(condition_ratio/control_ratio)
+        
+        # The first condition in the list is the control condition:
+        # this is specified by the user when constructing the sequence_data_dict()
+        control = list(sequence_data_dict['reps_cond_tile'][tile].keys())[0]
+        # Here we get the list of names of the columns that contain values of
+        # ratios and stds
+        ratios_sele_col = [col for col in tile_all if (col.startswith('mean_'))&
+                    ~col.endswith(control)]
+        error_sele_col = [col for col in tile_all if (col.startswith('std_'))&
+                    ~col.endswith(control)]
+        # Get the score and error column names from the ratios and stds.
+        # These are the names for new columns we are going to assign calculated
+        # values to.
+        score_col = [f'score_{c.split("_")[-1]}' for c in ratios_sele_col]
+        error_col = [f'err_{c.split("_")[-1]}' for c in error_sele_col]
+        # Divide ratios for the selection by ratios for the control.
+        # pd.DataFrame.div() is used to divide all 4 ratio columns
+        # by the same column -- control ratio column.
+        # Output is the np.array (.values converts dataframe into the np.array)
+        # with the size of (160, 4)
+        ratio_of_ratio = tile_all[ratios_sele_col].div(tile_all
+                                          ['mean_ratio_'+control], axis=0).values
+        # See the formulas in the manuscript. Basically,
+        # we separate one long formula into sub-operations for clarity.
+        # The full formula for propagation of uncertainty of the standard
+        # deviation for the division C = A/B with stds sA and sB is:
+        # sC = abs(C)*sqrt((sA/A)^2+(sB/B)^2).
+        # First, we calculate the (sB/B)^2, or, in our case, control component.
+        # The expected output is the np.array of the size (160, ), and this
+        # is an element-wise division
+        std_to_mean_ctrl = (tile_all['std_ratio_'+control].values/tile_all
+                             ['mean_ratio_'+control].values)**2
+        # Next, we get the (160, 4) np.array insteas of (160, ) for the (sB/B)^2.
+        # We need this to add these values to all 4 selection conditions. For all 
+        # 4 of them, control values are the same, of course. The output is a 
+        # np.array where all 4 columns are identical -- (sB/B)^2 operation.
+        std_to_mean_ctrlx4 = np.repeat(std_to_mean_ctrl2[:, np.newaxis], 4,
+                                         axis=1)
+        # Now we calculate the (sA/A)^2, or, in our case, condition component.
+        # Same logic as the control, (160, 4) output.
+        std_to_mean_sele = (tile_all[error_sele_col].values/tile_all
+                             [ratios_sele_col].values)**2
+        # Implementation of the full formula
+        error_div = abs(ratio_of_ratio) * np.sqrt(std_to_mean_sele
+                                                  +std_to_mean_ctrlx4)
+        # Getting log ratio score as per formula in the beggining of this
+        # section. Natural logarithm of condition to control ratio.
+        tile_all[score_col] = np.log(ratio_of_ratio)
+        # Another error propagation step, this time using formula:
+        # If we have y = ln(x), where sx is the std for x,
+        # sy = sx/x.
+        tile_all[error_col] = error_div/ratio_of_ratio
+        
+        """
+        The last step of the score calculations, rescaling the scores from 0 to
+        1, with 0 at mean stop-codon score per condition, and 1 at mean synonymous
+        (which is assumed to be 0 before rescaling, because this is what we 
+        normalise to). Synonimous variant count divided by sum of all varaint 
+        counts should have arounf the same value across all conditions,
+        so ln(1)=0.
+        Formula used for rescaling is the standard one:
+        ((max_value_new - min_value_new) * (data_point - min_value_original_data))/
+        (max_value_original_data - min_value_original_data) + min_value_new. 
+        Since our new min and max are 0 and 1, this simplifies into 
+        (data_point - min_value_original_data)/(-min_value_original_data)
+        """
+        min_params = tile_all.loc[tile_all['mut_type'] == 'stop'][score_col].mean()
+        tile_all[score_col] = ((tile_all[score_col]-min_params)/
+                               (-min_params)).round(3)
+        # To keep error's scale consistnt with the score, we divide it with the 
+        # max-min difference of the origianl data
+        tile_all[error_col] = (tile_all[error_col]/(-min_params)).round(3)
+        """
+        Next part is for copying the values of the missing variants for mutations 
+        that have one sequence for two or more positions. For example, there can only
+        be one sequence for insertion of Gly before and after a Gly in the sequence, 
+        because this is going to be two Gly in a row in both cases. Same goes for
+        deletions when we have two (or more) identical codons one after another.
+        So, this part of the code goes through the dataframe, finding these cases
+        and copying score, sequence and error values to the positions which were
+        missing because of that.
+        """
+        # Get the variants with missing sequences (remeber, we have a scaffold 
+        # dataframe that has all possible variants for the set-up). Most of 
+        # those are impossiblesynonymous variants at positions with Met and Trp.
+        # Some were really absent from the sequencing data. And a handful are
+        # same on the DNA sequence level, as described above.
         nans = tile_all[(tile_all['sequence'].isnull())].copy()
         num_rows = len(nans)
+        # Get the joined list of score and error columns, plus sequence. 
+        score_err_cols = score_col + error_col
+        score_err_cols.insert(0, 'sequence')
 
-        for index in range(num_rows - 1, -1, -1): #Going through the dataframe backwards beacause of the 3-in-a-row cases 
+        # Going through the dataframe backwards beacause of the 3-in-a-row cases -
+        # because of the way pairwise2 works for deletions and the fact that we 
+        # always pick the first aligment from the list, the varinat is classified
+        # as the first residue of the set, so we are copying from first to last.
+        for index in range(num_rows - 1, -1, -1): 
             row = nans.iloc[index]
             if row['mut_type'] == 'ins':
-                score_ins = tile_all.loc[(tile_all.mut_type == 'ins')&(tile_all.aa == 'G')&
-                        (tile_all.pos == (row['pos']+1))][['sequence', 'score_30',
-                                                            'score_30-MTX', 'score_37', 'score_37-MTX']].values
+                # Find the row in the dataframe that is an insertion after Gly
+                # at the position after the one of the missing variant we are 
+                # looking at. For insertions (again, because of how pairwise2
+                # works), the variant in a case like this is classified as the
+                # last one of the set.
+                score_ins = tile_all.loc[(tile_all.mut_type == 'ins')&(tile_all.aa 
+                         == 'G')&(tile_all.pos == (row['pos']+1))
+                                        ][score_err_cols].values
                 if print_yn == True:
-                        print('Found a missing insertion after G')
+                        print('Found a missing insertion before G')
                         print('Position: ', row['pos']+1)
                         print(row)
                         print(score_ins)
-                
-                if len(score_ins) == 1:
-                    ind = tile_all.loc[(tile_all.mut_type == 'ins')&(tile_all.pos == row['pos'])].index
-                    tile_all.loc[ind, ['sequence', 'score_30', 'score_30-MTX', 'score_37', 'score_37-MTX']]  = score_ins
-                    
-                    if print_yn == True:
-                        print('Only one missing data point')
-                    
+                        
+                if len(score_ins)==1:
+                    # Get the index of missing sequecne variant for the row 
+                    # editing
+                    ind = tile_all.loc[(tile_all.mut_type == 'ins')&
+                                       (tile_all.pos == row['pos'])].index
+                    tile_all.loc[ind, score_err_cols]  = score_ins
+                else:
+                    print('Do you have long Gly repeats?')
+
+            # Same idea for the deletions, but different direction
             elif row['mut_type'] == 'del':
-                score_del = tile_all.loc[(tile_all.mut_type == 'del')&(tile_all.aa == row['aa'])&
-                        (tile_all.pos == (row['pos']-1))][['sequence', 'score_30', 
-                                                            'score_30-MTX', 'score_37', 'score_37-MTX']].values
-                ind_del = tile_all.loc[(tile_all.mut_type == 'del')&(tile_all.aa == row['aa'])&
-                        (tile_all.pos == (row['pos']-1))].index
+                score_del = tile_all.loc[(tile_all.mut_type == 'del')&(tile_all.aa 
+                        == row['aa'])&(tile_all.pos == (row['pos']-1)
+                                      )][score_err_cols].values
                 if len(score_del) == 1:
-                    ind = tile_all.loc[(tile_all.mut_type == 'del')&(tile_all.pos == row['pos'])].index
-                    tile_all.loc[ind, ['sequence','score_30', 'score_30-MTX', 'score_37', 'score_37-MTX']] = score_del
+                    ind = tile_all.loc[(tile_all.mut_type == 'del')&(tile_all.pos 
+                                    == row['pos'])].index
+                    tile_all.loc[ind, score_err_cols] = score_del
 
+        # Finally, add the tile to the list of tiles
         tile_list.append(tile_all.reset_index(drop=True))
-
+        
+    # After iterating through all of the tiles, concat tile dfs together
     df_full = pd.concat(tile_list, ignore_index=True)
 
+    # Get a dataframe, where scores for the overlapping tile regions are averaged,
+    # and ratio columns dropped, leaving just scores and errors
     tile_shared_averaged = df_full.groupby(['pos', 'mut_type', 'aa'], dropna=False, 
-            as_index=False, group_keys = False)[['mean_count_no-sele',
-           'mean_count_30', 'mean_count_30-MTX', 'mean_count_37',
-           'mean_count_37-MTX', 'score_30', 'score_30-MTX', 'score_37',
-           'score_37-MTX']].mean()
+            as_index=False, group_keys = False)[[col for col in df_full if 
+                        col.startswith('score_')|col.startswith('err_')]].mean()
     
     return tile_shared_averaged, df_full, tile_list, wt_df, rep_counts, filtered_out
-
-# Write b-factor files from the score dataframes
-
-def bfact_txt(bfact_path, tile_shared_averaged):
-    for score_type in [col for col in tile_shared_averaged if col.startswith('score_')]:
-        for mut in ['del', 'ins']:
-            fname = score_type + '_' + mut + '.txt'
-            r = open(os.path.join(bfact_path, fname), 'w+')
-            nums = tile_shared_averaged.loc[tile_shared_averaged['mut_type'] == mut][score_type].values
-            positions = tile_shared_averaged.loc[tile_shared_averaged['mut_type'] == mut]['pos'].values
-            full_pos_count = 1
-            for i, n in zip(positions, nums):
-                if (math.isnan(n)):
-                    r.write('0\r\n')
-                #Does this make sense?
-                elif i != full_pos_count:
-                    while i != full_pos_count:
-                        r.write('0\r\n')
-                        full_pos_count += 1
-                    r.write(str(n) + '\r\n')
-                else:
-                    r.write(str(n) + '\r\n')
-                full_pos_count += 1
-            r.close()
