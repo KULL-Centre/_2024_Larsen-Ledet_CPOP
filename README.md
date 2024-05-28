@@ -16,4 +16,4 @@ This respository contains all data and code to repeat the processing and analysi
 The function.py file is used to call DHFR variants and calculate CPOP scores. The script takes raw FASTQ files as input, which are available at the NCBI Gene Expression Omnibus (GEO) repository (accession number: XXXX).
 
 ## Data analysis and plotting
-The CPOP_data_analysis.R file is used to analyze and produce all plots of the main figures. The CPOP_data_analysis_supplementary.R file is used to analyze and produce all plots of the supplementary figures.
+The CPOP_data_analysis.R file is used to produce all plots in the main figures. The CPOP_data_analysis_supplementary.R file is used to produce all plots in the supplementary figures.
