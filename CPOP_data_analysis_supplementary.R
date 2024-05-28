@@ -59,7 +59,7 @@ colnames(tile1_merged) <- make.unique(names(tile1_merged))
 tile1_merged_plot <- tile1_merged %>%
   mutate(Condition = ifelse(str_detect(experiment_rep1, "no.sele") &
                               str_detect(experiment_rep2, "no.sele") &
-                              str_detect(experiment_rep3, "no.sele"), "control",
+                              str_detect(experiment_rep3, "no.sele"), "no selection",
                             ifelse(str_right(experiment_rep1, 2) == "30" &
                                      str_right(experiment_rep2, 2) == "30" &
                                      str_right(experiment_rep3, 2) == "30", "30 °C", 
@@ -112,7 +112,7 @@ colnames(tile2_merged) <- make.unique(names(tile2_merged))
 tile2_merged_plot <- tile2_merged %>%
   mutate(Condition = ifelse(str_detect(experiment_rep1, "no.sele") &
                               str_detect(experiment_rep2, "no.sele") &
-                              str_detect(experiment_rep3, "no.sele"), "control",
+                              str_detect(experiment_rep3, "no.sele"), "no selection",
                             ifelse(str_right(experiment_rep1, 2) == "30" &
                                      str_right(experiment_rep2, 2) == "30" &
                                      str_right(experiment_rep3, 2) == "30", "30 °C", 
@@ -165,7 +165,7 @@ colnames(tile3_merged) <- make.unique(names(tile3_merged))
 tile3_merged_plot <- tile3_merged %>%
   mutate(Condition = ifelse(str_detect(experiment_rep1, "no.sele") &
                               str_detect(experiment_rep2, "no.sele") &
-                              str_detect(experiment_rep3, "no.sele"), "control",
+                              str_detect(experiment_rep3, "no.sele"), "no selection",
                             ifelse(str_right(experiment_rep1, 2) == "30" &
                                      str_right(experiment_rep2, 2) == "30" &
                                      str_right(experiment_rep3, 2) == "30", "30 °C", 
@@ -218,7 +218,7 @@ colnames(tile4_merged) <- make.unique(names(tile4_merged))
 tile4_merged_plot <- tile4_merged %>%
   mutate(Condition = ifelse(str_detect(experiment_rep1, "no.sele") &
                               str_detect(experiment_rep2, "no.sele") &
-                              str_detect(experiment_rep3, "no.sele"), "control",
+                              str_detect(experiment_rep3, "no.sele"), "no selection",
                             ifelse(str_right(experiment_rep1, 2) == "30" &
                                      str_right(experiment_rep2, 2) == "30" &
                                      str_right(experiment_rep3, 2) == "30", "30 °C", 
@@ -271,7 +271,7 @@ colnames(tile5_merged) <- make.unique(names(tile5_merged))
 tile5_merged_plot <- tile5_merged %>%
   mutate(Condition = ifelse(str_detect(experiment_rep1, "no.sele") &
                               str_detect(experiment_rep2, "no.sele") &
-                              str_detect(experiment_rep3, "no.sele"), "control",
+                              str_detect(experiment_rep3, "no.sele"), "no selection",
                             ifelse(str_right(experiment_rep1, 2) == "30" &
                                      str_right(experiment_rep2, 2) == "30" &
                                      str_right(experiment_rep3, 2) == "30", "30 °C", 
