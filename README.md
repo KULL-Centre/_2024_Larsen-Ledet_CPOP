@@ -22,3 +22,6 @@ The function.py file is used to call DHFR variants and calculate CPOP scores. Th
 
 ## Data analysis and plotting
 The CPOP_data_analysis.R file is used to produce all plots in the main figures, and the CPOP_data_analysis_supplementary.R file is used to produce all plots in the supplementary figures. Both files take the dataset with CPOP scores and standard deviations as input.
+
+## Preprint
+https://doi.org/10.1101/2024.07.11.603017
