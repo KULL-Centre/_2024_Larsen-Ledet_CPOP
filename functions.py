@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on 28 August 2023 at 15:06
-Modified on 16 May 2024
+Modified on 28 May 2024
 
 Author: Aleksandra Panfilova
 """
@@ -472,7 +472,7 @@ def analysis(path_to_folder, sequence_data_dict, normalisation_scaling_type,
         # We need this to add these values to all 4 selection conditions. For all 
         # 4 of them, control values are the same, of course. The output is a 
         # np.array where all 4 columns are identical -- (sB/B)^2 operation.
-        std_to_mean_ctrlx4 = np.repeat(std_to_mean_ctrl2[:, np.newaxis], 4,
+        std_to_mean_ctrlx4 = np.repeat(std_to_mean_ctrl[:, np.newaxis], 4,
                                          axis=1)
         # Now we calculate the (sA/A)^2, or, in our case, condition component.
         # Same logic as the control, (160, 4) output.
@@ -502,7 +502,7 @@ def analysis(path_to_folder, sequence_data_dict, normalisation_scaling_type,
         Since our new min and max are 0 and 1, this simplifies into 
         (data_point - min_value_original_data)/(-min_value_original_data)
         """
-        min_params = tile_all.loc[tile_all['mut_type'] == 'stop'][score_col].mean()
+        min_params = tile_all.loc[tile_all['mut_type'] == 'stop'][score_col].mean().values
         tile_all[score_col] = ((tile_all[score_col]-min_params)/
                                (-min_params)).round(3)
         # To keep error's scale consistnt with the score, we divide it with the 
