@@ -1,6 +1,6 @@
 # Systematic characterization of indel variants using a yeast-based protein folding sensor
 ## Introduction
-This respository contains all data (except from the raw FASTQ files, which are available at the NCBI Gene Expression Omnibus (GEO) repository (accession number: GSE270811) and code to repeat the processing and analysis of the CPOP data in Larsen-Ledet et al.: "Systematic characterization of indel variants using a yeast-based protein folding sensor".
+This respository contains all data (except from the raw FASTQ files, which are available at the NCBI Gene Expression Omnibus (GEO) repository (accession number: GSE270811)) and code to repeat the processing and analysis of the CPOP data in Larsen-Ledet et al.: "Systematic characterization of indel variants using a yeast-based protein folding sensor".
 
 ## Overview of files
 *Output files*
