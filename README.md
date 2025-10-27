@@ -5,7 +5,7 @@ This respository contains all data (except from the raw FASTQ files, which are a
 ## Overview of files
 *Output files*
 * **cpop_data.csv** - CPOP scores and standard deviations for DHFR indel, synonymous and nonsense variants.
-* **cpop_data_pre_rescale** - Raw CPOP scores and standard deviations for DHFR indel, synonymous and nonsense variants prior to rescaling.
+* **cpop_data_pre_rescale.csv** - Raw CPOP scores and standard deviations for DHFR indel, synonymous and nonsense variants prior to rescaling.
 * **cpop_data_ROC_[ins|del].csv** - CPOP scores for ROC curves, where duplicated indel variants on protein level have been removed.
 * **tile[1-5].csv** - Counts per tile for DHFR indel, synonymous and nonsense variants for each replicate and condition.
   
