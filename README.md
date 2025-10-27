@@ -13,8 +13,8 @@ This respository contains all data (except from the raw FASTQ files, which are a
 * **[ins|del]_dplddt_ddg.csv** - dpLDDT and ddG predictions for DHFR indel variants.
 * **rSASA.csv** - Relative solvent accessible surface area (rSASA) for each residue in DHFR.
 * **mtx_dist.csv** - Distance (Å) of each residue in DHFR to the MTX binding site.
-* **[ins|del]_esm1b** - ESM1b predictions for DHFR indel variants.
-* **del_sequence_alignment** - MSA generated with HHblits of DHFR homologs with deletions per position.
+* **[ins|del]_esm1b.csv** - ESM1b predictions for DHFR indel variants.
+* **del_sequence_alignment.csv** - MSA generated with HHblits of DHFR homologs with deletions per position.
 
 *Excel files*
 * **CPOP_primers_annealing.temp..xlsx** - Primers and annealing temperatures for the first PCR in amplicon preparation.
